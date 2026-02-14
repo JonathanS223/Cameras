@@ -23,6 +23,7 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.block.Block;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -51,7 +52,7 @@ public class Camera extends JavaPlugin {
 		this.resourcePackManager.initialize();
 
 		// Resource pack manager test
-		File grassFile = this.resourcePackManager.getTextureByMaterial(Material.GRASS);
+		File grassFile = this.resourcePackManager.getTextureByMaterial(Material.GRASS_BLOCK);
 		if(grassFile != null)
 			Bukkit.getLogger().info("Loaded grass texture " + grassFile.getName());
 
@@ -97,16 +98,20 @@ public class Camera extends JavaPlugin {
 
 									}
 
-									while(skipsLeft != 0) {
+									while (skipsLeft != 0) {
+										
+										Block block = Bukkit.getWorld("world").getBlockAt(x, y, 0);
+										colorByte = Utils.colorFromType(block, new double[]{1.0, 1.0, 1.0});
+										
 										mapCanvas.setPixel(x, y, colorByte);
 
 										y++;
-										if(y == 128) {
+										if (y == 128) {
 											y = 0;
 											x++;
 										}
 
-										skipsLeft -= 1;
+										skipsLeft--;
 									}
 								}
 							}
