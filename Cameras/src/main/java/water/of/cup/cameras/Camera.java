@@ -25,7 +25,6 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.profile.PlayerProfile;
-import org.bukkit.profile.ProfileProperty;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -150,40 +149,44 @@ public class Camera extends JavaPlugin {
     }
 
     public void addCameraRecipe() {
-		ItemStack camera = new ItemStack(Material.PLAYER_HEAD);
-		SkullMeta cameraMeta = (SkullMeta) camera.getItemMeta();
-		cameraMeta.setDisplayName(ChatColor.DARK_BLUE + "Camera");
+        ItemStack camera = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) camera.getItemMeta();
 
-		// Create GameProfile and set textures via reflection
-		GameProfile profile = new GameProfile(UUID.randomUUID(), "");
-		Property property = new Property("textures",
-			"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmZiNWVlZTQwYzNkZDY2ODNjZWM4ZGQxYzZjM2ZjMWIxZjAxMzcxNzg2NjNkNzYxMDljZmUxMmVkN2JmMjc4ZSJ9fX0==");
-		profile.getProperties().put("textures", property);
+        if (meta == null) return;
 
-		try {
-			Field profileField = cameraMeta.getClass().getDeclaredField("profile");
-			profileField.setAccessible(true);
-			profileField.set(cameraMeta, profile);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+        meta.setDisplayName(ChatColor.DARK_BLUE + "Camera");
 
-		camera.setItemMeta(cameraMeta);
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), null);
 
-		// Create the shaped recipe
-		NamespacedKey key = new NamespacedKey(this, "camera");
-		ShapedRecipe recipe = new ShapedRecipe(key, camera);
+        try {
+            profile.getTextures().setSkin(
+                new java.net.URL("http://textures.minecraft.net/texture/6fb5eee40c3dd6683cec8dd1c6c3fc1b1f0137178663d76109cfe12ed7bf278e")
+            );
+        } catch (java.net.MalformedURLException e) {
+            e.printStackTrace();
+        }
 
-		ArrayList<String> shapeArr = (ArrayList<String>) config.get("settings.camera.recipe.shape");
-		recipe.shape(shapeArr.toArray(new String[0]));
+        meta.setOwnerProfile(profile);
+        camera.setItemMeta(meta);
 
-		for (String ingredientKey : config.getConfigurationSection("settings.camera.recipe.ingredients").getKeys(false)) {
-			recipe.setIngredient(ingredientKey.charAt(0),
-					Material.valueOf((String) config.get("settings.camera.recipe.ingredients." + ingredientKey)));
-		}
+        NamespacedKey key = new NamespacedKey(this, "camera");
+        ShapedRecipe recipe = new ShapedRecipe(key, camera);
 
-		Bukkit.addRecipe(recipe);
-	}
+        java.util.List<String> shape = config.getStringList("settings.camera.recipe.shape");
+        recipe.shape(shape.toArray(new String[0]));
+
+        var section = config.getConfigurationSection("settings.camera.recipe.ingredients");
+        if (section != null) {
+            for (String k : section.getKeys(false)) {
+                Material mat = Material.matchMaterial(section.getString(k));
+                if (mat != null) {
+                    recipe.setIngredient(k.charAt(0), mat);
+                }
+            }
+        }
+
+        Bukkit.addRecipe(recipe);
+    }
 
     private void loadConfig() {
         if (!getDataFolder().exists()) getDataFolder().mkdir();

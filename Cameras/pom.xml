@@ -16,7 +16,6 @@
             <directory>src/main/resources</directory>
         </resource>
     </resources>
-    <sourceDirectory>src</sourceDirectory>
     <plugins>
         <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -28,8 +27,6 @@
         </plugin>
     </plugins>
 </build>
-
-
 
 <repositories>
     <repository>
@@ -47,7 +44,7 @@
     <dependency>
         <groupId>io.papermc.paper</groupId>
         <artifactId>paper-api</artifactId>
-        <version>1.21.1-R0.1-SNAPSHOT</version>
+        <version>1.20.4-R0.1-SNAPSHOT</version>
         <scope>provided</scope>
     </dependency>
 
