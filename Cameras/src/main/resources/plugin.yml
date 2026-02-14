@@ -1,0 +1,10 @@
+name: CameraPlugin
+version: 2.0
+main: water.of.cup.cameras.Camera
+api-version: 1.21
+author: CupOfCode
+description: A custom camera plugin for Paper.
+commands:
+  takePicture:
+    description: Take a picture with the camera
+    usage: /takepicture
